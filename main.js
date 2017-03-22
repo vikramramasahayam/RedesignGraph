@@ -35,6 +35,7 @@
       let y = d3.scaleLinear()
         .rangeRound([chartHeight, 0])
         .domain([0, d3.max(chartData, datum => d3.max(datum.values, (value) => parseInt(value['Time'])))]);
+
       
       let line = d3.line()
         .x(d => x(d['Date']))
@@ -138,7 +139,7 @@
       .enter()
       .append('button')
       .classed('btn btn-primary', true)
-      .html(datum => `${datum} <span class="badge">${(new Date()).toLocaleTimeString()}</span>`)
+      .html(datum => `${datum} <span class="badge">${config.latestValueMap[datum]}</span>`)
       .style('margin', '10px')
       .style('text-align', 'center')
       .on('click', d => {
@@ -153,7 +154,7 @@
         
         targetElement.classed('btn-primary', false)
           .classed('btn-default', true)
-          .html(`${d} <span class="badge">${(new Date()).toLocaleTimeString()}</span>`);
+          .html(`${d} <span class="badge">${config.latestValueMap[d]}</span>`);
 
         
         let newChartData = data.map(datum => {
@@ -215,6 +216,16 @@
       aria-hidden="true" style="color: ${config.colorMap[datum]}" ></span> ${datum}`);
   }
 
+  function getRecentDateValue(entry){
+    debugger;
+   let latestDate=d3.max(entry.values, (value) => new Date(value['Date']));
+   let latestValue = entry.values.filter(
+     function(v) { 
+       return (latestDate.getTime()==new Date(v.Date).getTime());
+     }).map(v => v.Time);
+   return latestValue;
+  }
+
   d3.csv('./People_Data.csv',(err, data) => {
     if (err)
       return err;  
@@ -225,16 +236,17 @@
     console.log(chartData);
     let lineColor = ['#0477AD', '#F78203', '#079E24', '#E62E2A', '#906AC0', '#945450','#FFFF00','#3933FF'];
     let colorMap = new Object();
+    let latestValueMap = new Object();
     chartData.forEach((entry,i) => {
      colorMap[entry.key] = lineColor[i];
+     let lastDateValue =getRecentDateValue(entry);
+     latestValueMap[entry.key] = lastDateValue;
    } )
 
-   //console.log(colorMap);
 
-   renderLineCharts(chartData, '#chart-container',{colorMap});
-    // renderLineCharts(chartData, '#chart-container', {
-      // lineColor: ['#0477AD', '#F78203', '#079E24', '#E62E2A', '#906AC0', '#945450','#FFFF00','#3933FF']
-    // });
+   console.log("Latest Value Map : "+latestValueMap);
+
+   renderLineCharts(chartData, '#chart-container',{colorMap,latestValueMap});
   });
 
 })();
