@@ -139,7 +139,7 @@
       .enter()
       .append('button')
       .classed('btn btn-primary', true)
-      .html(datum => `${datum} <span class="badge">${config.latestValueMap[datum]}</span>`)
+      .html(datum => `${datum} (${config.latestValueMap[datum]})`)
       .style('margin', '10px')
       .style('text-align', 'center')
       .on('click', d => {
@@ -154,7 +154,7 @@
         
         targetElement.classed('btn-primary', false)
           .classed('btn-default', true)
-          .html(`${d} <span class="badge">${config.latestValueMap[d]}</span>`);
+          .html(`${d} (${config.latestValueMap[d]})`);
 
         
         let newChartData = data.map(datum => {
@@ -217,7 +217,6 @@
   }
 
   function getRecentDateValue(entry){
-    debugger;
    let latestDate=d3.max(entry.values, (value) => new Date(value['Date']));
    let latestValue = entry.values.filter(
      function(v) { 
